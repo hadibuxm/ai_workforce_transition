@@ -1,0 +1,202 @@
+:root {
+    color-scheme: light;
+    font-family: "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+    background-color: #f6f5fa;
+    color: #1f1f28;
+}
+
+body {
+    margin: 0;
+}
+
+.site-header {
+    background: linear-gradient(120deg, #4d6fe5, #6f61e8);
+    color: #fff;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+}
+
+.site-header h1 {
+    margin: 0 0 0.25rem;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+}
+
+.site-header .tagline {
+    margin: 0;
+    font-weight: 300;
+    font-size: 1.1rem;
+}
+
+.content {
+    max-width: 1000px;
+    margin: -2.5rem auto 4rem;
+    padding: 0 1rem 4rem;
+}
+
+.panel {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.08);
+    padding: 2.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.panel h2 {
+    margin-top: 0;
+    font-size: 1.8rem;
+}
+
+.panel-lead {
+    max-width: 52ch;
+    color: #4d4d57;
+}
+
+.assessment-form {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.form-field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-field textarea {
+    width: 100%;
+    border: 1px solid #c9c9d3;
+    border-radius: 0.6rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 220px;
+}
+
+.form-field input[type="file"] {
+    font-size: 0.95rem;
+}
+
+.form-errors,
+.field-error {
+    color: #b21e35;
+}
+
+.form-errors {
+    background: #ffe5e9;
+    border: 1px solid #ffccd5;
+    padding: 1rem;
+    border-radius: 0.75rem;
+}
+
+.btn-primary {
+    background: #4d6fe5;
+    color: #fff;
+    padding: 0.9rem 1.8rem;
+    border-radius: 999px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 20px rgba(77, 111, 229, 0.25);
+}
+
+.score-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .score-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .score-grid .score-card:nth-child(1) {
+        grid-column: span 2;
+    }
+}
+
+.score-card {
+    background: #f8f9ff;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid #e1e4fb;
+}
+
+.score-card h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    color: #464964;
+}
+
+.score-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.score-copy {
+    margin: 0;
+    color: #5c5f78;
+}
+
+.insight-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+}
+
+@media (min-width: 768px) {
+    .insight-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.insight-grid h3 {
+    margin-top: 0;
+}
+
+.insight-grid ul {
+    padding-left: 1.2rem;
+    margin: 0.75rem 0 0;
+}
+
+.insight-grid li {
+    margin-bottom: 0.5rem;
+}
+
+.results-summary {
+    margin-top: 2rem;
+}
+
+.resume-sample {
+    margin-top: 2rem;
+    background: #f3f4fc;
+    border-radius: 0.75rem;
+    padding: 1rem 1.2rem;
+}
+
+.resume-sample summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.resume-sample pre {
+    white-space: pre-wrap;
+    font-size: 0.9rem;
+    margin: 1rem 0 0;
+    color: #434558;
+}
+
+.site-footer {
+    text-align: center;
+    padding: 2rem 1rem 3rem;
+    color: #6b6e85;
+    font-size: 0.85rem;
+}

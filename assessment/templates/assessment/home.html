@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Transition Assessment Tool{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h2>Upload a resume</h2>
+    <p class="panel-lead">
+        Upload a PDF or Word resume and we&#39;ll estimate how quickly AI could take over the role.
+    </p>
+    <form method="post" enctype="multipart/form-data" class="assessment-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="form-errors">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="form-field">
+            <label for="{{ form.resume_file.id_for_label }}">{{ form.resume_file.label }}</label>
+            {{ form.resume_file }}
+            {% if form.resume_file.help_text %}
+                <small>{{ form.resume_file.help_text }}</small>
+            {% endif %}
+            {% for error in form.resume_file.errors %}
+                <small class="field-error">{{ error }}</small>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn-primary">Assess Readiness</button>
+    </form>
+</section>
+
+{% if result %}
+<section class="panel results">
+    <h2>Assessment Summary</h2>
+    <div class="score-grid">
+        <article class="score-card">
+            <h3>Transition Readiness</h3>
+            <p class="score-value">{{ result.readiness_score }} / 100</p>
+            <p class="score-copy">Portion of duties that align with current AI strengths.</p>
+        </article>
+        <article class="score-card">
+            <h3>Time Horizon</h3>
+            <p class="score-value">{{ result.time_horizon }}</p>
+            <p class="score-copy">Estimated timing before AI can deliver the majority of outcomes.</p>
+        </article>
+        <article class="score-card">
+            <h3>Risk Score</h3>
+            <p class="score-value">{{ result.risk_score }} / 100</p>
+            <p class="score-copy">Likelihood that automation mistakes materially impact the business.</p>
+        </article>
+        <article class="score-card">
+            <h3>Final Recommendation</h3>
+            <p class="score-value">{{ result.recommendation }}</p>
+            <p class="score-copy">Guidance based on readiness versus risk profile.</p>
+        </article>
+        <article class="score-card">
+            <h3>Reassessment Time</h3>
+            <p class="score-value">{{ result.reassessment_time }}</p>
+            <p class="score-copy">When you should re-run this assessment if holding off on a transition.</p>
+        </article>
+    </div>
+
+    <details class="resume-sample">
+        <summary>Resume excerpt analyzed</summary>
+        <pre>{{ resume_excerpt }}</pre>
+    </details>
+</section>
+{% endif %}
+{% endblock %}
