@@ -5,13 +5,13 @@ from django.core.exceptions import ValidationError
 
 class ResumeAssessmentForm(forms.Form):
     resume_file = forms.FileField(
-        label="Upload resume (PDF or Word)",
+        label="Upload resume (PDF)",
         required=True,
-        help_text="Accepted formats: PDF, DOCX. File size limit 5 MB.",
+        help_text="Accepted formats: PDF. File size limit 5 MB.",
     )
 
     MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
-    SUPPORTED_EXTENSIONS = (".pdf", ".docx")
+    SUPPORTED_EXTENSIONS = (".pdf")
 
     def clean(self):
         cleaned_data = super().clean()

@@ -3,71 +3,147 @@
 {% block title %}Transition Assessment Tool{% endblock %}
 
 {% block content %}
-<section class="panel">
-    <h2>Upload a resume</h2>
-    <p class="panel-lead">
-        Upload a PDF or Word resume and we&#39;ll estimate how quickly AI could take over the role.
-    </p>
-    <form method="post" enctype="multipart/form-data" class="assessment-form">
-        {% csrf_token %}
-        {% if form.non_field_errors %}
-            <div class="form-errors">
-                {% for error in form.non_field_errors %}
-                    <p>{{ error }}</p>
-                {% endfor %}
+<div class="dashboard">
+    <aside class="dashboard-sidebar">
+        <section class="panel panel--compact">
+            <h2>Transition Assessment</h2>
+            <p class="panel-lead">
+                Upload a resume and we&#39;ll evaluate the role for AI transition readiness.
+            </p>
+            <form method="post" enctype="multipart/form-data" class="assessment-form">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-field">
+                    <label for="{{ form.resume_file.id_for_label }}">{{ form.resume_file.label }}</label>
+                    {{ form.resume_file }}
+                    {% if form.resume_file.help_text %}
+                        <small>{{ form.resume_file.help_text }}</small>
+                    {% endif %}
+                    {% for error in form.resume_file.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn-primary">Run Assessment</button>
+            </form>
+        </section>
+        <section class="panel panel--compact info-card">
+            <h3>What you&#39;ll receive</h3>
+            <ul>
+                <li>Automation readiness score</li>
+                <li>Projected time horizon for transition</li>
+                <li>Risk profile across compliance, financials, and operations</li>
+                <li>Recommended action and follow-up timing</li>
+            </ul>
+        </section>
+    </aside>
+
+    <section class="dashboard-main">
+        {% if result %}
+            <div class="panel summary-header">
+                <div>
+                    <p class="summary-label">Transition Readiness Score</p>
+                    <p class="summary-score">{{ result.readiness_score }}</p>
+                </div>
+                <div class="summary-meta">
+                    <div>
+                        <span class="summary-meta__label">Time Horizon</span>
+                        <span class="summary-meta__value">{{ result.time_horizon }}</span>
+                    </div>
+                    <div>
+                        <span class="summary-meta__label">Risk Score</span>
+                        <span class="summary-meta__value">{{ result.risk_score }}</span>
+                    </div>
+                    <div>
+                        <span class="summary-meta__label">Recommendation</span>
+                        <span class="summary-meta__value">{{ result.recommendation }}</span>
+                    </div>
+                </div>
             </div>
-        {% endif %}
 
-        <div class="form-field">
-            <label for="{{ form.resume_file.id_for_label }}">{{ form.resume_file.label }}</label>
-            {{ form.resume_file }}
-            {% if form.resume_file.help_text %}
-                <small>{{ form.resume_file.help_text }}</small>
+            <div class="grid two-col gap-lg">
+                <section class="panel">
+                    <h3>Automation Signals</h3>
+                    {% if result.automatable_signals %}
+                        <ul class="list-pairs">
+                            {% for label, count in result.automatable_signals.items %}
+                                <li>
+                                    <span>{{ label }}</span>
+                                    <strong>{{ count }}</strong>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="empty-state">No strong automation indicators were highlighted for this resume.</p>
+                    {% endif %}
+                </section>
+                <section class="panel">
+                    <h3>Risk Considerations</h3>
+                    {% if result.risk_signals %}
+                        <ul class="list-pairs">
+                            {% for label, count in result.risk_signals.items %}
+                                <li>
+                                    <span>{{ label }}</span>
+                                    <strong>{{ count }}</strong>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="empty-state">No material risk themes surfaced. Focus on stakeholder alignment.</p>
+                    {% endif %}
+                </section>
+            </div>
+
+            <section class="panel panel--stretch">
+                <div class="panel-header">
+                    <h3>Reassessment Guidance</h3>
+                    <span class="badge badge--neutral">{{ result.reassessment_time }}</span>
+                </div>
+                <p>{{ result.recommendation }}</p>
+            </section>
+
+            <section class="panel panel--stretch">
+                <div class="panel-header">
+                    <h3>Duties Sample</h3>
+                    <span class="badge badge--accent">{{ result.duty_sample|length }} insights</span>
+                </div>
+                <ul class="list-bullets">
+                    {% for duty in result.duty_sample %}
+                        <li>{{ duty }}</li>
+                    {% endfor %}
+                </ul>
+                <details class="resume-sample">
+                    <summary>Resume excerpt analyzed</summary>
+                    <pre>{{ result.resume_excerpt }}</pre>
+                </details>
+            </section>
+
+            {% if result.research_insights %}
+                <section class="panel panel--stretch">
+                    <div class="panel-header">
+                        <h3>Research Highlights</h3>
+                        <span class="badge badge--info">Web search</span>
+                    </div>
+                    <ul class="list-bullets">
+                        {% for insight in result.research_insights %}
+                            <li>{{ insight }}</li>
+                        {% endfor %}
+                    </ul>
+                </section>
             {% endif %}
-            {% for error in form.resume_file.errors %}
-                <small class="field-error">{{ error }}</small>
-            {% endfor %}
-        </div>
-
-        <button type="submit" class="btn-primary">Assess Readiness</button>
-    </form>
-</section>
-
-{% if result %}
-<section class="panel results">
-    <h2>Assessment Summary</h2>
-    <div class="score-grid">
-        <article class="score-card">
-            <h3>Transition Readiness</h3>
-            <p class="score-value">{{ result.readiness_score }} / 100</p>
-            <p class="score-copy">Portion of duties that align with current AI strengths.</p>
-        </article>
-        <article class="score-card">
-            <h3>Time Horizon</h3>
-            <p class="score-value">{{ result.time_horizon }}</p>
-            <p class="score-copy">Estimated timing before AI can deliver the majority of outcomes.</p>
-        </article>
-        <article class="score-card">
-            <h3>Risk Score</h3>
-            <p class="score-value">{{ result.risk_score }} / 100</p>
-            <p class="score-copy">Likelihood that automation mistakes materially impact the business.</p>
-        </article>
-        <article class="score-card">
-            <h3>Final Recommendation</h3>
-            <p class="score-copy">Guidance based on readiness versus risk profile.</p>
-            <p>{{ result.recommendation }}</p>
-        </article>
-        <article class="score-card">
-            <h3>Reassessment Time</h3>
-            <p class="score-value">{{ result.reassessment_time }}</p>
-            <p class="score-copy">When you should re-run this assessment if holding off on a transition.</p>
-        </article>
-    </div>
-
-    <details class="resume-sample">
-        <summary>Resume excerpt analyzed</summary>
-        <pre>{{ resume_excerpt }}</pre>
-    </details>
-</section>
-{% endif %}
+        {% else %}
+            <section class="panel empty-panel">
+                <h2>No assessment yet</h2>
+                <p>Upload a PDF or Word resume to generate automation readiness insights.</p>
+            </section>
+        {% endif %}
+    </section>
+</div>
 {% endblock %}
