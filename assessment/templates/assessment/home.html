@@ -8,7 +8,7 @@
         <section class="panel panel--compact">
             <h2>Transition Assessment</h2>
             <p class="panel-lead">
-                Upload a resume and we&#39;ll evaluate the role for AI transition readiness.
+                Upload a resume or paste a job description <br> and we&#39;ll evaluate the role for AI transition readiness.
             </p>
             <form method="post" enctype="multipart/form-data" class="assessment-form">
                 {% csrf_token %}
@@ -30,6 +30,18 @@
                         <small class="field-error">{{ error }}</small>
                     {% endfor %}
                 </div>
+                <div class="form-field">
+                    <label for="{{ form.job_description.id_for_label }}">{{ form.job_description.label }}</label>
+                    {{ form.job_description }}
+                    {% if form.job_description.help_text %}
+                        <small>{{ form.job_description.help_text }}</small>
+                    {% endif %}
+                    {% for error in form.job_description.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <p class="form-hint">Provide either a resume file or a job description, but not both.</p>
 
                 <button type="submit" class="btn-primary">Run Assessment</button>
             </form>
@@ -141,7 +153,7 @@
         {% else %}
             <section class="panel empty-panel">
                 <h2>No assessment yet</h2>
-                <p>Upload a PDF or Word resume to generate automation readiness insights.</p>
+                <p>Upload a PDF resume, or paste a job description to generate automation readiness insights.</p>
             </section>
         {% endif %}
     </section>

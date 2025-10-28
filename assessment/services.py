@@ -4,6 +4,7 @@ from __future__ import annotations
 import io
 import json
 import logging
+import re
 from dataclasses import dataclass
 from typing import Dict, List
 
@@ -40,20 +41,26 @@ class AssessmentResult:
 _client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 _SYSTEM_PROMPT = (
-    "You are an AI workforce strategist. Use the provided resume to evaluate how ready the role is for "
-    "unsupervised AI automation. When needed, leverage the available web search tool to ground your guidance "
+    "You are an AI workforce strategist. Use the provided resume or job description to evaluate how ready the role "
+    "is for unsupervised AI automation. When needed, leverage the available web search tool to ground your guidance "
     "in current automation benchmarks and industry trends. Respond in valid JSON only. like ```json { ... } ````"
 )
 
 
-def analyze_resume(uploaded_file) -> AssessmentResult:
-    """Upload the resume to OpenAI, trigger an analysis, and return structured results."""
-    _validate_extension(uploaded_file.name)
-    file_resource = _upload_resume_to_openai(uploaded_file)
-    try:
-        payload = _request_openai_analysis(file_resource.id)
-    finally:
-        _delete_remote_file(file_resource.id)
+def analyze_resume(*, uploaded_file=None, job_description: str | None = None) -> AssessmentResult:
+    """Upload the resume or submit a job description to OpenAI, trigger an analysis, and return structured results."""
+    if bool(uploaded_file) == bool(job_description):
+        raise ValueError("Provide exactly one input source for analysis.")
+
+    if uploaded_file:
+        _validate_extension(uploaded_file.name)
+        file_resource = _upload_resume_to_openai(uploaded_file)
+        try:
+            payload = _request_openai_analysis(file_id=file_resource.id)
+        finally:
+            _delete_remote_file(file_resource.id)
+    else:
+        payload = _request_openai_analysis(job_description=job_description or "")
     return _parse_payload(payload)
 
 
@@ -74,7 +81,8 @@ def _upload_resume_to_openai(uploaded_file):
     except Exception as exc:
         logger.exception("Failed to upload resume to OpenAI.", exc_info=exc)
         raise AnalysisError("Failed to upload resume for analysis. Please try again.") from exc
-import re
+
+
 def extract_and_load_json(text):
     # Regex pattern to match JSON structure
     json_pattern = r'```json\n(\{.*?\})\n```'
@@ -94,10 +102,16 @@ def extract_and_load_json(text):
         print("No JSON found.")
         return None
     
-def _request_openai_analysis(file_id: str) -> Dict[str, object]:
+def _request_openai_analysis(*, file_id: str | None = None, job_description: str | None = None) -> Dict[str, object]:
     """Call the OpenAI Responses API and return the parsed JSON payload."""
+    if bool(file_id) == bool(job_description):
+        raise ValueError("Expected exactly one of file_id or job_description.")
+
+    if job_description is not None:
+        job_description = job_description.strip()
+
     instructions = (
-        "Review the attached resume to estimate automation readiness. If you need external references, "
+        "Review the provided material to estimate automation readiness. If you need external references, "
         "use the web search tool. Return JSON with keys: readiness_score (0-100 integer), "
         "time_horizon (string), risk_score (0-100 integer), recommendation (string), "
         "reassessment_time (string), automatable_signals (object label->integer), "
@@ -118,7 +132,14 @@ def _request_openai_analysis(file_id: str) -> Dict[str, object]:
                     "role": "user",
                     "content": [
                         {"type": "input_text", "text": instructions},
-                        {"type": "input_file", "file_id": file_id},
+                        (
+                            {"type": "input_file", "file_id": file_id}
+                            if file_id
+                            else {
+                                "type": "input_text",
+                                "text": f"Job description:\n{job_description}",
+                            }
+                        ),
                     ],
                 },
             ],
