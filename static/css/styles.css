@@ -175,6 +175,23 @@ body {
     box-shadow: 0 20px 40px rgba(79, 70, 229, 0.3);
 }
 
+.btn-secondary {
+    background: transparent;
+    color: #4f46e5;
+    padding: 0.8rem 1.6rem;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(79, 70, 229, 0.4);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.btn-secondary:hover {
+    background: rgba(99, 102, 241, 0.08);
+    border-color: rgba(79, 70, 229, 0.6);
+}
+
 .info-card ul {
     margin: 1rem 0 0;
     padding: 0;
