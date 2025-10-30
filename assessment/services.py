@@ -27,6 +27,7 @@ class AnalysisError(RuntimeError):
 @dataclass
 class AssessmentResult:
     readiness_score: int
+    readiness_category: str
     time_horizon: str
     risk_score: int
     recommendation: str
@@ -35,6 +36,7 @@ class AssessmentResult:
     risk_signals: Dict[str, int]
     duty_sample: List[str]
     role_excerpt: str
+    research_guidance: str
     research_insights: List[str]
 
 
@@ -189,13 +191,18 @@ def _parse_payload(payload: Dict[str, object]) -> AssessmentResult:
     readiness = _safe_int(payload.get("readiness_score"), default=0)
     risk = _safe_int(payload.get("risk_score"), default=50)
 
+    transformed_readiness = _transpose_readiness_score(readiness)
+    readiness_category = _readiness_category(transformed_readiness)
+    research_guidance = _research_guidance(transformed_readiness)
+
     automatable = _safe_dict(payload.get("automatable_signals"))
     risk_signals = _safe_dict(payload.get("risk_signals"))
     duty_sample = _safe_list(payload.get("duty_sample"))
     research = _safe_list(payload.get("research_insights"))
 
     return AssessmentResult(
-        readiness_score=_clamp_score(readiness),
+        readiness_score=transformed_readiness,
+        readiness_category=readiness_category,
         time_horizon=str(payload.get("time_horizon") or "Time horizon unavailable"),
         risk_score=_clamp_score(risk),
         recommendation=str(
@@ -210,6 +217,7 @@ def _parse_payload(payload: Dict[str, object]) -> AssessmentResult:
         risk_signals=risk_signals,
         duty_sample=duty_sample or ["Role duties summary unavailable."],
         role_excerpt=str(payload.get("role_excerpt") or "Role excerpt unavailable."),
+        research_guidance=research_guidance,
         research_insights=research,
     )
 
@@ -241,3 +249,38 @@ def _safe_list(value) -> List[str]:
 
 def _clamp_score(score: int) -> int:
     return max(0, min(int(score), 100))
+
+
+def _transpose_readiness_score(score: int) -> int:
+    """Normalize the model readiness score onto a 0-100 scale with 75% as the maximum readiness anchor."""
+    clamped = _clamp_score(score)
+    if clamped <= 0:
+        return 0
+    adjusted = ((clamped - 1) * 74.0 / 99.0) + 1
+    scaled = (adjusted / 75.0) * 100.0
+    return _clamp_score(round(scaled))
+
+
+def _readiness_category(score: int) -> str:
+    if score >= 75:
+        return "Ready for full transition"
+    if score > 50:
+        return "AI-assisted partial transition (FTE reduction, but not a full replacement)"
+    return "Productivity improvement with AI, but revisit transition at the suggested timeframe"
+
+
+def _research_guidance(score: int) -> str:
+    if score > 74:
+        return (
+            "This role might be ready for full transition as most of its requirements can be replicated by AI if "
+            "the functions are properly designed and mapped and all the risks are carefully considered and mitigated."
+        )
+    if score > 50:
+        return (
+            "Focus research on orchestrating AI-assisted partial transitions, emphasizing hybrid workflows, "
+            "targeted FTE reductions, and pinpointing the safeguards human oversight must provide."
+        )
+    return (
+        "Direct research toward productivity boosters and risk mitigation. Document lessons learned and revisit "
+        "the transition strategy at the recommended reassessment horizon to gauge readiness improvements."
+    )
