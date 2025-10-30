@@ -1,43 +1,43 @@
 """Views for the Transition Assessment Tool."""
 from django.views.generic import FormView
 
-from .forms import ResumeAssessmentForm
-from .services import AnalysisError, AssessmentResult, UnsupportedFileType, analyze_resume
+from .forms import RoleAssessmentForm
+from .services import AnalysisError, AssessmentResult, UnsupportedFileType, analyze_role
 
 
 class AssessmentView(FormView):
     template_name = "assessment/home.html"
-    form_class = ResumeAssessmentForm
+    form_class = RoleAssessmentForm
     success_url = "/"
 
     def form_valid(self, form):
-        uploaded_file = form.cleaned_data.get("resume_file")
-        job_description = form.cleaned_data.get("job_description")
+        uploaded_file = form.cleaned_data.get("role_document")
+        role_description = form.cleaned_data.get("role_description")
 
         try:
-            analysis: AssessmentResult = analyze_resume(
+            analysis: AssessmentResult = analyze_role(
                 uploaded_file=uploaded_file,
-                job_description=job_description,
+                role_description=role_description,
             )
         except UnsupportedFileType as exc:
-            form.add_error("resume_file", str(exc))
+            form.add_error("role_document", str(exc))
             return self.form_invalid(form)
         except AnalysisError as exc:
-            target_field = "job_description" if job_description and not uploaded_file else None
+            target_field = "role_description" if role_description and not uploaded_file else None
             if target_field:
                 form.add_error(target_field, str(exc))
             else:
                 form.add_error(None, str(exc))
             return self.form_invalid(form)
         except Exception:
-            if job_description and not uploaded_file:
+            if role_description and not uploaded_file:
                 form.add_error(
-                    "job_description",
-                    "We could not process this job description. Please try again with a different description.",
+                    "role_description",
+                    "We could not process this role description. Please try again with a different description.",
                 )
             else:
                 form.add_error(
-                    "resume_file",
+                    "role_document",
                     "We could not process this file. Please upload a different PDF or DOCX.",
                 )
             return self.form_invalid(form)

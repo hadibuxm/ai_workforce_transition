@@ -325,27 +325,6 @@ body {
     gap: 0.65rem;
 }
 
-.resume-sample {
-    margin-top: 1rem;
-    background: #f3f4ff;
-    border-radius: 0.8rem;
-    padding: 1rem 1.2rem;
-    border: 1px solid rgba(99, 102, 241, 0.2);
-}
-
-.resume-sample summary {
-    cursor: pointer;
-    font-weight: 600;
-    color: #4338ca;
-}
-
-.resume-sample pre {
-    white-space: pre-wrap;
-    font-size: 0.9rem;
-    margin: 1rem 0 0;
-    color: #374151;
-}
-
 .empty-panel {
     text-align: center;
     min-height: 320px;

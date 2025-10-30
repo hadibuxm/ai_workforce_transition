@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load assessment_extras %}
 
 {% block title %}Transition Assessment Tool{% endblock %}
 
@@ -8,7 +9,7 @@
         <section class="panel panel--compact">
             <h2>Transition Assessment</h2>
             <p class="panel-lead">
-                Upload a resume or paste a job description and we&#39;ll evaluate the role for AI transition readiness.
+                Upload a role profile or paste a role description and we&#39;ll evaluate the role for AI transition readiness.
             </p>
             <form method="post" enctype="multipart/form-data" class="assessment-form">
                 {% csrf_token %}
@@ -21,27 +22,27 @@
                 {% endif %}
 
                 <div class="form-field">
-                    <label for="{{ form.resume_file.id_for_label }}">{{ form.resume_file.label }}</label>
-                    {{ form.resume_file }}
-                    {% if form.resume_file.help_text %}
-                        <small>{{ form.resume_file.help_text }}</small>
+                    <label for="{{ form.role_document.id_for_label }}">{{ form.role_document.label }}</label>
+                    {{ form.role_document }}
+                    {% if form.role_document.help_text %}
+                        <small>{{ form.role_document.help_text }}</small>
                     {% endif %}
-                    {% for error in form.resume_file.errors %}
+                    {% for error in form.role_document.errors %}
                         <small class="field-error">{{ error }}</small>
                     {% endfor %}
                 </div>
                 <div class="form-field">
-                    <label for="{{ form.job_description.id_for_label }}">{{ form.job_description.label }}</label>
-                    {{ form.job_description }}
-                    {% if form.job_description.help_text %}
-                        <small>{{ form.job_description.help_text }}</small>
+                    <label for="{{ form.role_description.id_for_label }}">{{ form.role_description.label }}</label>
+                    {{ form.role_description }}
+                    {% if form.role_description.help_text %}
+                        <small>{{ form.role_description.help_text }}</small>
                     {% endif %}
-                    {% for error in form.job_description.errors %}
+                    {% for error in form.role_description.errors %}
                         <small class="field-error">{{ error }}</small>
                     {% endfor %}
                 </div>
 
-                <p class="form-hint">Provide either a resume file or a job description, but not both.</p>
+                <p class="form-hint">Provide either a role document upload or a role description, but not both.</p>
 
                 <button type="submit" class="btn-primary">Run Assessment</button>
                 <button type="button" class="btn-secondary" id="reload-btn">Reload</button>
@@ -61,102 +62,69 @@
     <section class="dashboard-main">
         {% if result %}
             <div id="assessment-results">
-            <div class="panel summary-header">
-                <div>
-                    <p class="summary-label">Transition Readiness Score</p>
-                    <p class="summary-score">{{ result.readiness_score }}</p>
-                </div>
-                <div class="summary-meta">
+                <div class="panel summary-header">
                     <div>
-                        <span class="summary-meta__label">Time Horizon</span>
-                        <span class="summary-meta__value">{{ result.time_horizon }}</span>
+                        <p class="summary-label">Transition Readiness Score</p>
+                        <p class="summary-score">{{ result.readiness_score }}</p>
                     </div>
-                    <div>
-                        <span class="summary-meta__label">Risk Score</span>
-                        <span class="summary-meta__value">{{ result.risk_score }}</span>
-                    </div>
-                    <div>
-                        <span class="summary-meta__label">Recommendation</span>
-                        <span class="summary-meta__value">{{ result.recommendation }}</span>
+                    <div class="summary-meta">
+                        <div>
+                            <span class="summary-meta__label">Time Horizon</span>
+                            <span class="summary-meta__value">{{ result.time_horizon }}</span>
+                        </div>
+                        <div>
+                            <span class="summary-meta__label">Risk Score</span>
+                            <span class="summary-meta__value">{{ result.risk_score }}</span>
+                        </div>
+                        <div>
+                            <span class="summary-meta__label">Recommendation</span>
+                            <span class="summary-meta__value">{{ result.recommendation }}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="grid two-col gap-lg">
-                <section class="panel">
-                    <h3>Automation Signals</h3>
-                    {% if result.automatable_signals %}
-                        <ul class="list-pairs">
-                            {% for label, count in result.automatable_signals.items %}
-                                <li>
-                                    <span>{{ label }}</span>
-                                    <strong>{{ count }}</strong>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="empty-state">No strong automation indicators were highlighted for this resume.</p>
-                    {% endif %}
-                </section>
-                <section class="panel">
-                    <h3>Risk Considerations</h3>
-                    {% if result.risk_signals %}
-                        <ul class="list-pairs">
-                            {% for label, count in result.risk_signals.items %}
-                                <li>
-                                    <span>{{ label }}</span>
-                                    <strong>{{ count }}</strong>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="empty-state">No material risk themes surfaced. Focus on stakeholder alignment.</p>
-                    {% endif %}
-                </section>
-            </div>
-
-            <section class="panel panel--stretch">
-                <div class="panel-header">
-                    <h3>Reassessment Guidance</h3>
-                    <span class="badge badge--neutral">{{ result.reassessment_time }}</span>
+                <div class="grid two-col gap-lg">
+                    <section class="panel">
+                        <h3>Major AI Handover Tasks</h3>
+                        {% if result.automatable_signals %}
+                            <ul class="list-bullets">
+                                {% for label, _score in result.automatable_signals.items %}
+                                    <li>{{ label|humanize_signal }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="empty-state">No strong automation indicators were highlighted for this role.</p>
+                        {% endif %}
+                    </section>
+                    <section class="panel">
+                        <h3>Risk Score</h3>
+                        {% if result.risk_signals %}
+                            <ul class="list-pairs">
+                                {% for label, count in result.risk_signals.items %}
+                                    <li>
+                                        <span>{{ label|humanize_signal }}</span>
+                                        <strong>{{ count }}</strong>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="empty-state">No material risk themes surfaced. Focus on stakeholder alignment.</p>
+                        {% endif %}
+                    </section>
                 </div>
-                <p>{{ result.recommendation }}</p>
-            </section>
 
-            <section class="panel panel--stretch">
-                <div class="panel-header">
-                    <h3>Duties Sample</h3>
-                    <span class="badge badge--accent">{{ result.duty_sample|length }} insights</span>
-                </div>
-                <ul class="list-bullets">
-                    {% for duty in result.duty_sample %}
-                        <li>{{ duty }}</li>
-                    {% endfor %}
-                </ul>
-                <details class="resume-sample">
-                    <summary>Resume excerpt analyzed</summary>
-                    <pre>{{ result.resume_excerpt }}</pre>
-                </details>
-            </section>
-
-            {% if result.research_insights %}
                 <section class="panel panel--stretch">
                     <div class="panel-header">
-                        <h3>Research Highlights</h3>
-                        <span class="badge badge--info">Web search</span>
+                        <h3>Reassessment Guidance</h3>
+                        <span class="badge badge--neutral">{{ result.reassessment_time }}</span>
                     </div>
-                    <ul class="list-bullets">
-                        {% for insight in result.research_insights %}
-                            <li>{{ insight }}</li>
-                        {% endfor %}
-                    </ul>
+                    <p>{{ result.recommendation }}</p>
                 </section>
-            {% endif %}
             </div>
         {% else %}
             <section class="panel empty-panel">
                 <h2>No assessment yet</h2>
-                <p>Upload a PDF resume, or paste a job description to generate automation readiness insights.</p>
+                <p>Upload a PDF role profile, or paste a role description to generate automation readiness insights.</p>
             </section>
         {% endif %}
     </section>
@@ -178,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const placeholder = document.createElement("section");
             placeholder.className = "panel empty-panel";
             placeholder.innerHTML =
-                "<h2>No assessment yet</h2><p>Upload a PDF resume, or paste a job description to generate automation readiness insights.</p>";
+                "<h2>No assessment yet</h2><p>Upload a PDF role profile, or paste a role description to generate automation readiness insights.</p>";
             dashboardMain.prepend(placeholder);
         }
     });

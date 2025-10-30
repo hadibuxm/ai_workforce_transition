@@ -2,37 +2,37 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import SimpleTestCase
 
-from .forms import ResumeAssessmentForm
+from .forms import RoleAssessmentForm
 
 
-class ResumeAssessmentFormTests(SimpleTestCase):
+class RoleAssessmentFormTests(SimpleTestCase):
     def test_requires_some_input(self):
-        form = ResumeAssessmentForm(data={})
+        form = RoleAssessmentForm(data={})
         self.assertFalse(form.is_valid())
         self.assertIn("__all__", form.errors)
 
     def test_rejects_both_inputs(self):
-        resume = SimpleUploadedFile("resume.pdf", b"fake pdf content", content_type="application/pdf")
-        form = ResumeAssessmentForm(
-            data={"job_description": "A" * 60},
-            files={"resume_file": resume},
+        role_file = SimpleUploadedFile("role_profile.pdf", b"fake pdf content", content_type="application/pdf")
+        form = RoleAssessmentForm(
+            data={"role_description": "A" * 60},
+            files={"role_document": role_file},
         )
         self.assertFalse(form.is_valid())
         self.assertIn("__all__", form.errors)
 
-    def test_accepts_resume_file(self):
-        resume = SimpleUploadedFile("resume.pdf", b"fake pdf content", content_type="application/pdf")
-        form = ResumeAssessmentForm(
+    def test_accepts_role_document(self):
+        role_file = SimpleUploadedFile("role_profile.pdf", b"fake pdf content", content_type="application/pdf")
+        form = RoleAssessmentForm(
             data={},
-            files={"resume_file": resume},
+            files={"role_document": role_file},
         )
         self.assertTrue(form.is_valid())
 
-    def test_accepts_job_description(self):
-        form = ResumeAssessmentForm(data={"job_description": "A detailed job description " * 3})
+    def test_accepts_role_description(self):
+        form = RoleAssessmentForm(data={"role_description": "A detailed role description " * 3})
         self.assertTrue(form.is_valid())
 
-    def test_rejects_short_job_description(self):
-        form = ResumeAssessmentForm(data={"job_description": "Too short"})
+    def test_rejects_short_role_description(self):
+        form = RoleAssessmentForm(data={"role_description": "Too short"})
         self.assertFalse(form.is_valid())
-        self.assertIn("job_description", form.errors)
+        self.assertIn("role_description", form.errors)
