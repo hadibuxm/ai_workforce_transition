@@ -43,10 +43,59 @@ body {
     opacity: 0.82;
 }
 
+.site-nav {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.25rem;
+    font-size: 0.95rem;
+}
+
+.site-nav a {
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.site-nav a:hover {
+    text-decoration: underline;
+}
+
+.site-nav__greeting {
+    opacity: 0.85;
+}
+
 .content {
     max-width: 1200px;
     margin: -3rem auto 4rem;
     padding: 0 1.5rem 4rem;
+}
+
+.system-messages {
+    max-width: 960px;
+    margin: 1.5rem auto 0;
+    padding: 0 1.5rem;
+}
+
+.message {
+    margin: 0 0 0.5rem;
+    padding: 0.85rem 1.1rem;
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.message--error,
+.message--warning {
+    background: rgba(248, 113, 113, 0.18);
+    color: #991b1b;
+    border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+.message--success {
+    background: rgba(34, 197, 94, 0.18);
+    color: #166534;
+    border: 1px solid rgba(34, 197, 94, 0.35);
 }
 
 .dashboard {
@@ -117,6 +166,21 @@ body {
     margin: 0.5rem 0 1.5rem;
 }
 
+.assessment-quota {
+    background: rgba(14, 165, 233, 0.08);
+    border: 1px solid rgba(14, 165, 233, 0.25);
+    border-radius: 0.9rem;
+    padding: 0.9rem 1rem;
+    font-size: 0.95rem;
+    margin-bottom: 1.2rem;
+}
+
+.assessment-quota--exhausted {
+    background: rgba(248, 113, 113, 0.15);
+    border-color: rgba(248, 113, 113, 0.35);
+    color: #991b1b;
+}
+
 .assessment-form {
     display: grid;
     gap: 1.3rem;
@@ -175,6 +239,12 @@ body {
     box-shadow: 0 20px 40px rgba(79, 70, 229, 0.3);
 }
 
+.btn-primary[disabled] {
+    cursor: not-allowed;
+    opacity: 0.55;
+    box-shadow: none;
+}
+
 .btn-secondary {
     background: transparent;
     color: #4f46e5;
@@ -196,6 +266,27 @@ body {
     margin: 1rem 0 0;
     padding: 0;
     list-style: none;
+}
+
+.auth-panel {
+    max-width: 480px;
+    margin: 2rem auto;
+    text-align: left;
+}
+
+.auth-form {
+    display: grid;
+    gap: 1.2rem;
+}
+
+.auth-alt-link {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.auth-alt-link a {
+    color: #4f46e5;
+    font-weight: 600;
 }
 
 .info-card li {

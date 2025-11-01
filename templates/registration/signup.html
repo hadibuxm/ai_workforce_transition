@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<section class="panel auth-panel">
+    <h2>Create an account</h2>
+    <p class="panel-lead">Enter the single-use access code that was provided to you to activate access.</p>
+    <form method="post" class="auth-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="form-errors">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-field">
+            <label for="{{ form.access_code.id_for_label }}">Access code</label>
+            {{ form.access_code }}
+            {% for error in form.access_code.errors %}
+                <small class="field-error">{{ error }}</small>
+            {% endfor %}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+            {% for error in form.username.errors %}
+                <small class="field-error">{{ error }}</small>
+            {% endfor %}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.email.id_for_label }}">Email</label>
+            {{ form.email }}
+            {% for error in form.email.errors %}
+                <small class="field-error">{{ error }}</small>
+            {% endfor %}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.password1.id_for_label }}">Password</label>
+            {{ form.password1 }}
+            {% for error in form.password1.errors %}
+                <small class="field-error">{{ error }}</small>
+            {% endfor %}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.password2.id_for_label }}">Confirm password</label>
+            {{ form.password2 }}
+            {% for error in form.password2.errors %}
+                <small class="field-error">{{ error }}</small>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn-primary">Create account</button>
+    </form>
+    <p class="auth-alt-link">
+        Already have an account?
+        <a href="{% url 'login' %}">Sign in instead.</a>
+    </p>
+</section>
+{% endblock %}

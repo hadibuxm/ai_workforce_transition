@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<section class="panel auth-panel">
+    <h2>Sign in</h2>
+    <p class="panel-lead">Use your credentials to access the assessment dashboard.</p>
+    <form method="post" class="auth-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="form-errors">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-field">
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+            {% for error in form.username.errors %}
+                <small class="field-error">{{ error }}</small>
+            {% endfor %}
+        </div>
+        <div class="form-field">
+            <label for="{{ form.password.id_for_label }}">Password</label>
+            {{ form.password }}
+            {% for error in form.password.errors %}
+                <small class="field-error">{{ error }}</small>
+            {% endfor %}
+        </div>
+        {% if next %}
+            <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+        <button type="submit" class="btn-primary">Sign in</button>
+    </form>
+    <p class="auth-alt-link">
+        Need an account?
+        <a href="{% url 'assessment:signup' %}">Sign up with your access code.</a>
+    </p>
+</section>
+{% endblock %}

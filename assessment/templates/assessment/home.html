@@ -11,6 +11,15 @@
             <p class="panel-lead">
                 Upload a role profile or paste a role description and we&#39;ll evaluate the role for AI transition readiness.
             </p>
+            {% if remaining_runs is not None %}
+                <div class="assessment-quota {% if remaining_runs == 0 %}assessment-quota--exhausted{% endif %}">
+                    <strong>Assessments remaining:</strong>
+                    {{ remaining_runs }} of {{ total_runs_allowed }}
+                    {% if remaining_runs == 0 %}
+                        <p>You have used the five assessments allocated to your account.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
             <form method="post" enctype="multipart/form-data" class="assessment-form">
                 {% csrf_token %}
                 {% if form.non_field_errors %}
@@ -44,7 +53,7 @@
 
                 <p class="form-hint">Provide either a role document upload or a role description, but not both.</p>
 
-                <button type="submit" class="btn-primary">Run Assessment</button>
+                <button type="submit" class="btn-primary" {% if remaining_runs == 0 %}disabled aria-disabled="true"{% endif %}>Run Assessment</button>
                 <button type="button" class="btn-secondary" id="reload-btn">Reload</button>
             </form>
         </section>
