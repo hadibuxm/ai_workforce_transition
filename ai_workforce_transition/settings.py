@@ -125,7 +125,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 # External service credentials (development only fallback)
 OPENAI_API_KEY = os.getenv(
     "OPENAI_API_KEY",
-    "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",
+    "",
 )
 
 # Default primary key field type
