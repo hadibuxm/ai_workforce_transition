@@ -11,7 +11,23 @@
     <header class="site-header">
         <h1>Transition Assessment Tool</h1>
         <p class="tagline">Assess how prepared a role is for AI-driven transformation.</p>
+        <nav class="site-nav">
+            {% if user.is_authenticated %}
+                <span class="site-nav__greeting">Signed in as {{ user.get_username }}</span>
+                <a href="{% url 'logout' %}">Log out</a>
+            {% else %}
+                <a href="{% url 'login' %}">Log in</a>
+                <a href="{% url 'assessment:signup' %}">Sign up</a>
+            {% endif %}
+        </nav>
     </header>
+    {% if messages %}
+        <section class="system-messages">
+            {% for message in messages %}
+                <p class="message message--{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </section>
+    {% endif %}
     <main class="content">
         {% block content %}{% endblock %}
     </main>

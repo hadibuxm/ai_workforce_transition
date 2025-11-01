@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-1tr5iohd7f2x@x5lw07449ah(6n1y8b!8ax56l44oe_ws4-8#$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["hadibuxmahessar.pythonanywhere.com"]
+ALLOWED_HOSTS = ["hadibuxmahessar.pythonanywhere.com", "127.0.0.1"]
 
 
 # Application definition
@@ -125,10 +125,14 @@ MEDIA_ROOT = BASE_DIR / "media"
 # External service credentials (development only fallback)
 OPENAI_API_KEY = os.getenv(
     "OPENAI_API_KEY",
-    "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",
+    "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",
 )
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "assessment:home"
+LOGOUT_REDIRECT_URL = "login"

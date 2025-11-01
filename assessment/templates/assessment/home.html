@@ -20,7 +20,7 @@
                     {% endif %}
                 </div>
             {% endif %}
-            <form method="post" enctype="multipart/form-data" class="assessment-form">
+            <form method="post" enctype="multipart/form-data" class="assessment-form" data-remaining-runs="{{ remaining_runs|default:0 }}">
                 {% csrf_token %}
                 {% if form.non_field_errors %}
                     <div class="form-errors">
@@ -53,7 +53,7 @@
 
                 <p class="form-hint">Provide either a role document upload or a role description, but not both.</p>
 
-                <button type="submit" class="btn-primary" {% if remaining_runs == 0 %}disabled aria-disabled="true"{% endif %}>Run Assessment</button>
+                <button type="submit" class="btn-primary">Run Assessment</button>
                 <button type="button" class="btn-secondary" id="reload-btn">Reload</button>
             </form>
         </section>
@@ -166,6 +166,17 @@
 </div>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+    const assessmentForm = document.querySelector(".assessment-form");
+    if (assessmentForm) {
+        assessmentForm.addEventListener("submit", (event) => {
+            const remainingRuns = parseInt(assessmentForm.dataset.remainingRuns || "0", 10);
+            if (!Number.isNaN(remainingRuns) && remainingRuns <= 0) {
+                event.preventDefault();
+                alert("You have used all five assessments available on your account.");
+            }
+        });
+    }
+
     const reloadButton = document.getElementById("reload-btn");
     if (!reloadButton) {
         return;
