@@ -30,6 +30,7 @@ class AssessmentResult:
     readiness_category: str
     time_horizon: str
     risk_score: int
+    fte_savings_percentage: int
     recommendation: str
     reassessment_time: str
     automatable_signals: Dict[str, int]
@@ -116,7 +117,8 @@ def _request_openai_analysis(*, file_id: str | None = None, role_description: st
     instructions = (
         "Review the provided material to estimate automation readiness. If you need external references, use the web "
         "search tool. Return JSON with keys: readiness_score (0-100 integer), "
-        "time_horizon (string), risk_score (0-100 integer), recommendation (string), "
+        "time_horizon (string), risk_score (0-100 integer), fte_savings_percentage (0-100 integer representing the share "
+        "of tasks that AI can perform), recommendation (string), "
         "reassessment_time (string), automatable_signals (object label->integer), "
         "risk_signals (object label->integer), duty_sample (array of up to 8 concise bullets), "
         "role_excerpt (string under 600 characters highlighting notable duties), "
@@ -199,16 +201,28 @@ def _parse_payload(payload: Dict[str, object]) -> AssessmentResult:
     risk_signals = _safe_dict(payload.get("risk_signals"))
     duty_sample = _safe_list(payload.get("duty_sample"))
     research = _safe_list(payload.get("research_insights"))
+    fte_savings_percentage = _clamp_score(_safe_int(payload.get("fte_savings_percentage"), 0))
+    base_recommendation = str(
+        payload.get("recommendation")
+        or "Recommendation unavailable. Rerun the assessment."
+    )
+
+    if transformed_readiness < 75:
+        planning_prefix = (
+            f"FTE Savings: approximately {fte_savings_percentage}% of tasks can transition to AI assistance. "
+            "Achieving this shift requires careful planning and execution by AI SMEs."
+        )
+        recommendation = f"{planning_prefix} {base_recommendation}".strip()
+    else:
+        recommendation = base_recommendation
 
     return AssessmentResult(
         readiness_score=transformed_readiness,
         readiness_category=readiness_category,
         time_horizon=str(payload.get("time_horizon") or "Time horizon unavailable"),
         risk_score=_clamp_score(risk),
-        recommendation=str(
-            payload.get("recommendation")
-            or "Recommendation unavailable. Rerun the assessment."
-        ),
+        fte_savings_percentage=fte_savings_percentage,
+        recommendation=recommendation,
         reassessment_time=str(
             payload.get("reassessment_time")
             or "Reassessment guidance unavailable."
